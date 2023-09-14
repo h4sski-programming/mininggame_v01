@@ -1,48 +1,50 @@
 import pygame
 
-from settings import BG_COLOUR, RESOLUTION, WIDTH, HEIGHT, FPS, CELL_SIZE, CELL_ROWS, CELL_COLUMS
+from settings import BG_COLOUR, RESOLUTION, RESOLUTION_MAIN, WIDTH, HEIGHT, FPS, CELL_SIZE, CELL_ROWS, CELL_COLUMS
 from cell import Cell
 from player import Player
+from score import Score
 
 
 pygame.init()
 screen = pygame.display.set_mode(RESOLUTION)
+# screen_main = pygame.Surface(RESOLUTION_MAIN)
 clock = pygame.time.Clock()
 running: bool = True
 game_map: list = []
 player = Player()
+score = Score()
 
 def initiate():
     for column in range(CELL_COLUMS):
         game_map.append(Cell(column * CELL_SIZE, 0))
-        game_map[-1].discovered = True
         for row in range(1, CELL_ROWS):
             game_map.append(Cell(column * CELL_SIZE, row * CELL_SIZE))
 
 def events(run):
-    # for event in pygame.event.get():
-    #     if event.type == pygame.QUIT:
-    #         run = False
-    
     pressed = pygame.key.get_pressed()
     
     # player movement
     if pressed[pygame.K_w] and player.y >= CELL_SIZE:
         player.y -= CELL_SIZE
-    elif pressed[pygame.K_s] and player.y < HEIGHT-(2*CELL_SIZE):
+    elif pressed[pygame.K_s] and player.y < HEIGHT-(CELL_SIZE*2.8):
         player.y += CELL_SIZE
     elif pressed[pygame.K_a] and player.x >= CELL_SIZE:
         player.x -= CELL_SIZE
-    elif pressed[pygame.K_d] and player.x < WIDTH-(2*CELL_SIZE):
+    elif pressed[pygame.K_d] and player.x < WIDTH-(CELL_SIZE*1.8):
         player.x += CELL_SIZE
         
 
 def update():
     player.update()
     for cell in game_map:
-        # print(f'{cell.position = }, {player.position = }, {player.x = }, {player.y = }')
-        if cell.position == player.position:
-            # print(f'True! {cell.discovered = }')
+        if cell.position == player.position and not cell.discovered:
+            if cell.type == 'diamond':
+                player.diamond += 1
+            elif cell.type == 'iron':
+                player.iron += 1
+            elif cell.type == 'coal':
+                player.coal += 1
             cell.discovered = True
 
 
@@ -51,12 +53,13 @@ def draw():
     screen.fill(BG_COLOUR)
     
     # RENDER YOUR GAME HERE
-    # for row in range(CELL_ROWS):
-    #     for column in range(CELL_COLUMS):
-    #         pygame.draw.rect(screen, 'black', (column * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)
     for cell in game_map:
         cell.draw(screen)
     player.draw(screen)
+    
+    # draw bottom score pallete
+    score.draw(screen, player)
+    
     # flip() the display to put your work on screen
     pygame.display.flip()
 
