@@ -1,7 +1,7 @@
 CELL_SIZE:int = 32
 WIDTH, HEIGHT = 1280, 720
 FPS: int = 10
-BG_COLOUR: str = 'yellow'
+BG_COLOUR = (200, 200, 200)
 SCORE_FONT_SIZE = CELL_SIZE
 
 
